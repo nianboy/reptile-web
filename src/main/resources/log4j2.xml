@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn" name="MyApp" packages="">
+	<Appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{yyyy/MM/dd HH:mm:ss,SSS} %-5p: %c.%M - %m%n" />
+		</Console>
+		<RollingRandomAccessFile name="FILE"
+            fileName="logs/crawler.log"
+            filePattern="logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.execute.log">
+            <PatternLayout>
+                <Pattern>%d{yyyy/MM/dd HH:mm:ss,SSS} %-5p: %c.%M - %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="20 MB" />
+            </Policies>
+        </RollingRandomAccessFile>
+	</Appenders>
+	<Loggers>
+		<Logger name="org.springframework.core" level="info" additivity="false">
+            <AppenderRef ref="Console" />	
+            <AppenderRef ref="FILE" />	
+		</Logger>
+		<Logger name="org.springframework.beans" level="info" additivity="false">
+		    <AppenderRef ref="Console" />
+		    <AppenderRef ref="FILE" />	
+		</Logger>
+		<Logger name="org.springframework.context" level="info" additivity="false">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="FILE" />			
+		</Logger>
+		<Logger name="org.springframework.web" level="info" additivity="false">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="FILE" />			
+		</Logger>
+        <Logger name="cn.edu.hfut.dmic.webcollector" level="info" additivity="false">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="FILE" />
+        </Logger>
+        <Logger name="com.itsum.jc.*" level="info" additivity="false">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="FILE" />
+        </Logger> 
+		<Root level="info">
+			<AppenderRef ref="Console" />
+			<AppenderRef ref="FILE" />
+		</Root>
+	</Loggers>
+</Configuration>

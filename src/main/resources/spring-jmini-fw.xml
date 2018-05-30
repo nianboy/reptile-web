@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"      
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"     
+    xmlns:p="http://www.springframework.org/schema/p"    
+    xmlns:aop="http://www.springframework.org/schema/aop"     
+    xmlns:context="http://www.springframework.org/schema/context"    
+    xmlns:jee="http://www.springframework.org/schema/jee"    
+    xmlns:tx="http://www.springframework.org/schema/tx"    
+    xsi:schemaLocation="      
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd    
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd    
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd    
+        http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.0.xsd    
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">  
+			
+	<bean class="jmini.env.MyPropertyPlaceholderConfigurer"></bean>
+	
+  <bean id="DB" class="jmini.db.service.MiniService">
+    <property name="miniDAO" ref="miniMySQLDAO" />
+  </bean>
+  
+  <bean id="miniMySQLDAO" class="jmini.db.dao.MiniMySQLDAO">
+    <property name="jminiJDBCTemplate" ref="jminiTemplate" />
+  </bean>
+	
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+    	<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+    	<property name="url" value="${db.mysql.url}" />
+    	<property name="username" value="${db.mysql.username}" />
+    	<property name="password" value="${db.mysql.password}" />
+    	<property name="maxWait" value="1000" />
+    	<property name="initialSize" value="20" />
+        <property name="maxActive" value="100" />
+        <property name="maxIdle" value="10" />
+        <property name="minIdle" value="5" />
+        <property name="testWhileIdle" value="true" />
+        <property name="timeBetweenEvictionRunsMillis" value="15000" />
+        <property name="numTestsPerEvictionRun" value="20" />
+        <property name="validationQuery" value="SELECT 1" />
+        <property name="removeAbandoned" value="true" />
+        <property name="removeAbandonedTimeout" value="180" />
+        <property name="connectionProperties"><value>clientEncoding=utf-8</value></property>    	
+	</bean>
+
+	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<aop:config>
+		<aop:pointcut id="serviceOperation" expression="execution(* jmini.db.iservice..*Service.*(..))" />
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="serviceOperation" />
+	</aop:config>
+
+	<tx:advice id="txAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="save*" propagation="REQUIRED" />
+			<tx:method name="create*" propagation="REQUIRED" />
+			<tx:method name="delete*" propagation="REQUIRED" />
+			<tx:method name="remove*" propagation="REQUIRED" />
+			<tx:method name="update*" propagation="REQUIRED" />
+			<tx:method name="submit*" propagation="REQUIRED" />
+			<tx:method name="query*" propagation="REQUIRED" read-only="true" />
+			<tx:method name="load*" propagation="REQUIRED" read-only="true" />
+			<tx:method name="count*" propagation="REQUIRED" read-only="true" />
+			<tx:method name="sum*" propagation="REQUIRED" read-only="true" />
+			<tx:method name="*" propagation="SUPPORTS" read-only="true" />
+		</tx:attributes>
+	</tx:advice>
+	
+	<bean id="jminiTemplate" class="org.springframework.jdbc.core.JdbcTemplate">  
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+</beans>
